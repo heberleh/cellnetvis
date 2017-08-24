@@ -1,0 +1,52 @@
+body {
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    color: #676a6c;
+    overflow-x: hidden;
+}
+
+.highlight_cc circle{
+  stroke-width: 2 !important;
+  stroke-opacity: 1 !important;
+  stroke-dasharray: 0 !important;
+}
+
+.highlight_cc rect{
+  stroke-width: 2 !important;
+  stroke-opacity: 1 !important;
+  stroke-dasharray: 0 !important;
+  stroke: #444 !important;
+}
+
+.panel-heading a:after {
+    font-family:'Glyphicons Halflings';
+    content:"\e114";
+    float: right;
+    color: grey;
+}
+.panel-heading a.collapsed:after {
+    content:"\e080";
+}
+
+#table-wrapper {
+  position:relative;
+}
+#table-scroll {
+  height:760px;
+  overflow:auto;
+  margin-top:20px;
+}
+#table-wrapper table {
+  width:100%;
+}
+
+#table-wrapper table thead th .text {
+  position:absolute;
+  top:-20px;
+  z-index:2;
+  height:20px;
+  width:35%;
+  border:1px solid red;
+}
+
+html{ min-width:1704px; height:500px; overflow-x:scroll; }

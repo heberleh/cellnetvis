@@ -1,0 +1,437 @@
+
+/*from http://www.zell-weekeat.com/creating-a-clean-and-simple-website-part-2-styling-the-header/    WITH PERMITION to edit and freely use*/
+/* 	Reset
+Eric Meyer's Reset Stylesheet + a few other improvements
+--------------------------------------------------------*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+    color:#2b2927;
+}
+
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+audio,
+canvas,
+video {
+    display: inline-block;
+}
+
+body {
+    line-height:1;
+}
+
+ol,
+ul {
+    list-style: none;
+}
+
+blockquote,
+q {
+    quotes:none;
+}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+    content:'';
+    content:none;
+}
+
+
+table {
+    border-collapse:collapse;
+    border-spacing:0;
+}
+
+/* change border colour to suit your needs */
+
+input,
+select {
+    vertical-align:middle;
+}
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sub {
+    top: 0.2em;
+}
+
+sup {
+    top: -0.4em;
+}
+
+.hidden {
+    display: none;
+}
+
+/* End of CSS RESET
+/* Start of Header Styles
+-------------------------------------------------------------------------*/
+
+#header {
+    background-color: #2b2927;
+    /* This shows the background color */
+
+    margin-bottom: 10px;
+    /* This ensures that there is a margin of 81px between the header of other elements */
+
+    overflow: hidden;
+    /* Overflow hidden is used because we will be floating all children elements. */
+}
+
+.wrap {
+    width: 1000px;
+    /* Sets the width of the elements to be 1152 pixels. */
+
+    margin: 0 auto;
+    /* Shorthand for margin. Auto on left and right allows .wrap to be centered in the browser */
+    
+    float: left;
+    
+    padding-left: 150px;
+}
+
+#title-area {
+    display:block;
+    /* Display block allows setting of width and height values  */
+
+    line-height: 60px;
+    height: 60px;
+    /* height determines the amount of vertical space allocated for the header.
+
+    Also, a line-height that equals the height ensures that the element is centered on the horizontal axis */
+
+    width:40%;
+    /*A small width is to ensure that there is space for navigational elements*/
+
+    float: left;
+    /* floating the title area left ensures that it can be placed side by side with the navigational elements, which would be floated to the left as well */
+}
+
+nav {
+    line-height: 60px;
+    height: 60px;
+    float: left;
+    width: 40%;
+}
+
+nav li{
+    display: inline;
+}
+
+nav ul {
+    text-transform: uppercase;
+    /* This is to convert all letters to uppercase */
+    text-align:justify;
+    /* text-align: justify and the following few lines of codes inclusive allows my navigation elements to have equal spaces within between them no matter how many elements there are.
+    */
+}
+
+nav ul:after {
+    content:'';
+    display:inline-block;
+    width: 100%;
+    height: 0;
+}
+
+nav a {
+    padding: 1em 0;
+}
+
+body {
+    font: normal 18px/1.5  arial;
+    /* This is a font shorthand that allows you to set many variables at one go, in this case its:
+    font weight: 	normal;
+    font-size: 		18px;
+    line-height: 	1.5;
+    font-family: 	"Montserrat", helvetica, arial, sans-serif; */
+}
+
+#title, nav {
+    font-weight: bold;
+}
+
+#title {
+    font-size: 50px;
+    /*This is to enlarge the font on the title text */
+}
+
+a {
+    text-decoration: none;
+    /* This removes the underline in anchor tags */
+}
+
+#title a, nav a,
+/* This targets the <a> tag within #title and #nav respectively */
+#title a:visited, nav a:visited
+/* This targets links that were already visited before by the reader */
+{
+    color: #F5F5F5;
+}
+
+#title a:focus, /*Focus takes effect when the tab shortcut is used to navigate the links */
+#title a:hover,  /* Hover takes effect when you mouse enter the specific area */
+#title a:active  /* active takes effect when its the active page */
+{
+    color: #C7EAE5;
+    text-decoration: none;
+    /* This ensures the header text doesn't change color on hover */
+}
+
+nav a:focus, nav a:hover, nav a:active
+{
+    color: #C7EAE5;
+    text-decoration: none;
+}
+
+
+#content {
+    float:left;
+    width:40%;
+
+
+    /*    background:#9c9;*/
+}
+
+#sidebar {
+    float:left;
+    width:300px;
+
+    /*    background:#c9c;      */
+}
+#sidebar_inner{
+    padding-left: 1cm;
+    padding-bottom: 10px;
+}
+
+#sidebar h4{
+    font-size: 12px;
+    font-style:normal;
+    font-family: arial;
+}
+
+#sidebar_right { 
+    padding-right: 1cm;
+    float: right;
+    max-height: 849px;
+    display: inline-block;
+    overflow-y: scroll;
+    max-width: 30%;
+}
+
+
+.container {
+    width: 200px;
+    clear: both;
+    font-size: 10px;
+}
+.container input {
+    width: 20%;
+    clear: both;
+    float: right;
+}
+.container label{
+    clear: both;
+}
+
+.widgettitle{
+    font-weight: bold;
+}
+
+#export{
+    width: 400px;
+    margin: 0 auto; 
+}
+
+#chart{
+    margin-bottom: 35px;
+}
+
+
+
+div.table-title {
+    display: block;
+    margin: auto;
+    max-width: 100%;  
+    width: 100%;
+}
+
+.table-title h3 {
+    color: #fafafa;
+    font-size: 30px;
+    font-weight: 400;
+    font-style:normal;
+    font-family: arial, sans-serif;
+    text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+    text-transform:uppercase;
+}
+
+
+/*** Table Styles // width: 400px; **/
+
+.table-fill {
+    background: white;
+    border-radius:3px;
+    border-collapse: collapse;
+    margin: auto;
+    max-width: 100%;  
+    padding:5px;
+    overflow: auto;    
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    animation: float 5s infinite;
+}
+
+th {
+    color:#F5F5F5;
+    background:#2B2927;
+    border-bottom:4px solid #9ea7af;
+    border-right: 1px solid #343a45;
+    font-size:12px;
+    padding:12px;
+    text-align:left;
+    vertical-align:middle;
+    border-right: 1px solid #C1C3D1;
+}
+
+th:first-child {
+    border-top-left-radius:3px;
+}
+
+th:last-child {
+    border-top-right-radius:3px;
+    border-right:none;
+}
+
+tr {
+    border-top: 1px solid #C1C3D1;
+    border-bottom: 1px solid #C1C3D1;
+    color:#666B85;
+    font-size:12px;
+    font-weight:normal;
+    text-shadow: 0 1px 1px rgba(256, 256, 256, 0.1);
+}
+
+tr:hover td {
+    background:#EFF9FB;
+    color:#2B2927;
+    border-top: 1px solid #22262e;
+    border-bottom: 1px solid #22262e;
+}
+
+tr:hover a {
+    background:#EFF9FB;
+    color:#2B2927;
+    border-top: 1px solid #22262e;
+    border-bottom: 1px solid #22262e;
+}
+
+
+tr:first-child {
+    border-top:none;
+}
+
+tr:last-child {
+    border-bottom:none;
+}
+
+/*tr:nth-child(odd) td {
+    background:#faf3e7;
+}*/
+
+/*tr:nth-child(odd):hover td {
+    background: #2b2927;
+}*/
+
+tr:last-child td:first-child {
+    border-bottom-left-radius:3px;
+}
+
+tr:last-child td:last-child {
+    border-bottom-right-radius:3px;
+}
+
+td {
+    background:#FFFFFF;
+    padding:10px;
+    text-align:left;
+    vertical-align:middle;
+    font-weight:300;
+    font-size:12px;
+    border-right: 1px solid #C1C3D1;
+}
+
+
+td:last-child {
+    border-right: 0px;
+}
+
+th.text-left {
+    text-align: left;
+}
+
+th.text-center {
+    text-align: center;
+}
+
+th.text-right {
+    text-align: right;
+}
+
+td.text-left {
+    text-align: left;
+}
+
+td.text-center {
+    text-align: center;
+}
+
+td.text-right {
+    text-align: right;
+}
+
+
+.tiny12{
+    font-family: arial;
+    font-size: 12px;
+}
+
+
+.tiny12bold{
+    font-family: arial;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.tiny10{
+    font-family: arial;
+    font-size: 10px;
+}
+
+html{ min-width:1704px; height:500px; overflow-x:scroll; }

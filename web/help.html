@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Bootstrap -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- end Bootstrap -->
+
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="description" content="Visualize biomolecular networks in a structure of cellular components." />
+
+
+<!--henry at icmc . usp . br-->
+
+<!--This file is part of CellNetVis.
+
+CellNetVis is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+CellNetVis is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with CellNetVis. If not, see <http://www.gnu.org/licenses/>.
+
+Those that have employed the tool CellNetVis should mention:
+CellNetVis: a web tool for visualization of biological networks using force-directed layout constrained by cellular components
+Henry Heberle, Marcelo Falsarella Carazzolle, Guilherme P. Telles, Gabriela Vaz Meirelles, Rosane Minghim
+BMC Bioinformatics
+2017
+
+-->
+
+
+        <title>CellNetVis - Help</title>
+
+
+        <!--    DE TERCEIROS-->
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans" />
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=PT+Serif+Caption" />
+
+        <link type="text/css" rel="stylesheet" href="style_iis.css"/>
+
+        <script src="jquery/jquery-2.1.0.min.js"></script>
+
+        <!-- Bootstrap -->
+        <!-- Latest compiled and minified CSS -->
+       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <!-- <link type="text/css" rel="stylesheet" href="./bootstrap/font-awesome.min.css"/> -->
+
+        <script src="bootstrap/bootstrap-slider.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="bootstrap/bootstrap-slider.min.css">
+
+        <style type="text/css" media="screen">
+           /* Slider color*/
+          .slider-handle {
+                background-image: linear-gradient(to bottom,#80cdc1 0,#54a79a 100%);
+            }
+        </style>
+        <link type="text/css" rel="stylesheet" href="style.css"/>
+
+
+        <style type="text/css">
+            .help h1, .help h2, .help h3 {
+                font-family: "PT Serif Caption";
+                font-size: 24px;
+                font-style: normal;
+                font-variant: normal;
+                font-weight: 500;
+                line-height: 26.4px;
+            }
+
+            .help p {
+                font-family: "Open Sans", "Arial";
+                font-size: 14px;
+                font-style: normal;
+                font-variant: normal;
+                font-weight: 400;
+                line-height: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+    <div id="loading-container" class="loading-container">
+        <div class="loading-image">
+            <div class="loading"></div>
+            <div id="loading-text">loading</div>
+        </div>
+    </div>
+
+     <nav class="navbar navbar-inverse">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">CellNetVis</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="citation.html">Citation</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li class="active"><a href="help.html">Help</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More options <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li class="dropdown-header">Other features</li>
+                <li id="create_cerebral"><a href="#">Create <b>CerebralWeb</b> layout</a></li>
+                <!-- <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li> -->
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Network databases (.xgmml)</li>
+                <li><a href="http://bioinfo03.ibi.unicamp.br/lnbio/IIS2/"  target="_blank">IIS - Integrated Interactome System</a></li>
+                <li><a href="http://www.innatedb.com/" target="_blank">InnateDB</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class='container-fluid help'>
+        <div class="row">
+            <div class="col-md-3">
+            </div>
+
+            <div id="content" class="col-md-6 help main">
+                <h3 class="help">Demonstration videos</h3>
+                <div class="help row" style="padding-left:20px">
+                    <div class="col-md-6">
+                    <iframe width="400" height="270" src="https://www.youtube.com/embed/qdfhG5FmrhM?rel=0" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="col-md-6">
+                    <iframe width="400" height="270" src="https://www.youtube.com/embed/ma7rO72vsJQ?rel=0" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <div class="row help">
+                    <h3 class="help">Try CellNetVis</h3>
+                    <p class="help">Here you find two example networks to try our system.</p>
+                    <p class="help">There are <b>two methods to visualize</b> the example networks:</p>
+
+                    <ul style="list-style-type:circle;padding-left: 60px;padding-bottom: 20px">
+                        <li style="padding-bottom: 10px">
+                            <p class="help"><b>The first</b> one is to directly visualize the networks by just clicking on a pre-made URL, like the following links:</p>
+                        </li>
+
+                        <ul style="list-style-type:decimal;padding-left: 60px;">
+                            <li>
+                                <p class="help"><i>Homo sapiens</i> MAPK signaling pathway from KEGG database (1.7 MB):
+                                <a target="_blank" title="Click opens a new tab." href="http://bioinfo03.ibi.unicamp.br/lnbio/IIS2/cellnetvis/index.html?file=http://bioinfo03.ibi.unicamp.br//downloads/projetos/cellnetvis_MAPK_KEGG.interactome.lista_cytoscape_final_2vizinhos_python_lista.xgmml"><br><b>click here.</b></a></p>
+                            </li>
+                            <li style="padding-bottom: 10px">
+                                <p class="help">Human Protein Atlas supportive immunohistochemistry (IH) and immunofluorescence (IF) data (17.3MB):
+                                <a target="_blank" title="Click opens a new tab." href="http://bioinfo03.ibi.unicamp.br/lnbio/IIS2/cellnetvis/index.html?file=http://bioinfo03.ibi.unicamp.br//downloads/projetos/cellnetvis_hpa_supportive_IH_IF.interactome.lista_cytoscape_final_2vizinhos_python_lista.xgmml"><b>click here.</b></a>
+                                </p>
+                            </li>
+                            <li>
+                            <p class=help>Yeast network:
+                            <a target="_blank" title="Click opens a new tab." href="http://bioinfo03.ibi.unicamp.br/lnbio/IIS2/cellnetvis/index.html?file=http://bioinfo03.ibi.unicamp.br//downloads/projetos/henry_yeast_from_mosaic.interactome.lista_cytoscape_final_2vizinhos_python_lista.xgmml"><b>click here.</b></a>
+                            </p>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <p class="help"><b>The second</b> method is to download and upload the network as a XGMML file.
+                        This file format is explained in the next section. After downloading the network,
+                        you must load it by clicking on the button in the Load Network section from CellNetVis.</p>
+                        <p class="help">Example networks to download:</p>
+
+                        <ul style="list-style-type:decimal;padding-left: 60px;padding-bottom: 20px">
+                            <li>
+                                <p class="help"><i>Homo sapiens</i> MAPK signaling pathway from KEGG database (1.7 MB):
+                                <a target="_blank" title="Click opens a new tab." href="http://bioinfo03.ibi.unicamp.br//downloads/projetos/cellnetvis_MAPK_KEGG.interactome.lista_cytoscape_final_2vizinhos_python_lista.xgmml"><b>right click here to <i>'save link as'</i> .xgmml.</b></a></p>
+                            </li>
+                            <li style="padding-bottom: 10px">
+                                <p class="help">Human Protein Atlas supportive immunohistochemistry (IH) and immunofluorescence (IF) data (17.3 MB):
+                                <a target="_blank" title="Click opens a new tab." href="http://bioinfo03.ibi.unicamp.br//downloads/projetos/cellnetvis_hpa_supportive_IH_IF.interactome.lista_cytoscape_final_2vizinhos_python_lista.xgmml"><b>right click here to <i>'save link as'</i> .xgmml.</b></a> </p>
+                            </li>
+                            <li style="padding-bottom: 10px">
+                                <p class="help">Yeast network (6.7 MB):
+                                <a target="_blank" title="Click opens a new tab." href="http://bioinfo03.ibi.unicamp.br//downloads/projetos/henry_yeast_from_mosaic.interactome.lista_cytoscape_final_2vizinhos_python_lista.xgmml"><b>right click here to <i>'save link as'</i> .xgmml.</b></a> </p>
+                            </li>
+                            <li style="padding-bottom: 10px">
+                                <p class="help">RIG-I-like receptor signaling pathway downloaded from InnateDB  (466 kB):
+                                <a target="_blank" title="Click opens a new tab." href="RIG_I_like_receptor_signaling_pathway _from_InnateDB.xgmml"><b>right click here to <i>'save link as'</i> .xgmml.</b></a> </p>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 class="help">Network file format and how to load it</h3>
+                    <p class="help">
+                        To <b>load a network</b>, click on the "Browse" button in the Load Network section.
+                        Select a <b>XGMML</b> file, for instance: some_network.xgmml.
+                        XGMML is a markup language created to describe graphs (networks).
+                        It uses tags to describe nodes and edges of a graph. Its purpose is to enable
+                        the exchange of graphs between different tools.
+                        The XGMML file format specification and guides may be found <a href="http://cgi5.cs.rpi.edu/research/groups/pb/punin/public_html/XGMML/"><b>here</b></a>.
+                    </p>
+
+                    <p class="help">
+                        The XGMML file accepted by CellNetVis must contain an attribute named <b>Selected CC</b> (Selected Cellular Component) or <b>Localization</b> in each node,
+                        so the system can separate the nodes properly.
+                        If you are using the <a href="http://bioinfo03.ibi.unicamp.br/lnbio/IIS2/">Integrated Interactome System (IIS)</a> or <a href="http://www.innatedb.com/">InnateDB</a> to create a network, you do not need to worry about it. This attribute is
+                        automatically created by them.
+                    </p>
+                    <p>
+                        If your <b>network does not have the Selected CC/Localization</b> attribute, you have three options:
+                        <ul style="list-style-type:decimal">
+                            <li>
+                                <b>to create this attribute in the XGMML file</b> using your own script. You may use your own algorithm to select the most representative cellular component for each protein/node in your problem.
+                            </li>
+                            <li>
+                                <b>to make CellNetVis automatically load the Localization</b> from <a href="http://www.innatedb.ca/CerebralWeb/subcellular_localisation.php">InnateDB webservice</a>. In this case, each node needs to have an attribute named InnateDB, Ensembl, Entrez or UniProt with its respective ID in the XGMML file. CellNetVis will use these IDs to query the Localization from InnateDB webservice.
+                            </li>
+                            <li>
+                                <b>to use the genes/proteins list of your current network and create a new network</b> on IIS, InnateDB or other tool that selects a unique component for each node.
+                            </li>
+                        </ul>
+
+                    </p>
+
+                    <p> The attribute Selected CC/Localization in the XGMML file looks like this:</p>
+
+
+                    <p>
+                        <img src="selected_cc_xgmml.PNG" alt="Required attribute."  style="width:800px;height:200px;border:0;">
+                    </p>
+
+                    <p>
+                        The system uses the information in the <b>Selected CC</b>/<b>Localization</b> attribute of each node to constrain it in the corresponding cellular component.
+                        It may take some time to load the network. It will depend on your computer power, on your operational system
+                        and on your browser (in our tests Chrome had the best response performance and the worst XGMML loading/parsing time).
+                        The network diagram and the donut chart will be automatically displayed. The donut chart is also interactive;
+                        it shows the distribution of all nodes per cellular component.
+                    </p>
+
+                    <p class="help"><b>Accepted values for Selected CC/Localization</b>: extracellular, cell wall, plasma membrane,
+                        mitochondrion, endoplasmic reticulum, golgi apparatus, endosome, centrosome, microtubule organising centre,
+                        lysosome, vacuole, glyosysome, glycosome, peroxisome, amyloplast, apicoplast, chloroplast, plastid,
+                        cytoplasm, cytosol and nucleus. Cell surface nodes will be placed on the extracellular component. Any other value not defined on CellNetVis or empty attribute will match with cytosol. The donut chart will display the original values defined on the XGMML file.</p>
+
+
+                <h3 class="help">Node search</h3>
+                    <p class="help">
+                        To <b>search</b> a node you must use the text box at the Search section.
+                        For single search (1 word) you must write the node name and click on <b>Find</b>.
+                        For multiple search (2 or more words) you must separate them using <b>line breaks</b>.
+                        Select the <b>Exact match</b> for exact searches. For instance, the search for 'a'
+                        when exact match is selected will select only the node with a label equal to 'a'.
+                        Nodes with labels equal to 'ab' will not be selected.
+                    </p>
+
+                <h3 class="help">Neighborhood selection and labels by click</h3>
+                    <p class="help">
+                        Clicking on a node will select its neighbors and show their labels.
+                        The <b>Clear</b> button deselects these nodes and hides their labels.
+                    </p>
+
+                <h3 class="help">Hide unselected nodes</h3>
+                    <p class="help">
+                        Select the nodes you want to keep visible using a mouse click or the search function.
+                        Click on the <b>Filter</b> button and only selected nodes will be visible and affected by the force-based algorithm.
+                        Click on the <b>Clear</b> button to set all nodes visible again.
+                        The <b>Clear</b> button may be used to hide labels and deselect nodes.
+                    </p>
+
+                <h3 class="help">Changing nodes colors</h3>
+                    <p class="help">
+                        <b>Select an attribute</b> at the Nodes Attributes section.
+                    </p>
+
+                <h3 class="help">Showing and hiding all nodes labels</h3>
+                    <p class="help">
+                        Use the <b>Show</b> button to show all labels of the network.
+                        Use the <b>Hide</b> button to hide all labels of the network.
+                    </p>
+
+                <h3 class="help">Showing values of nodes attributes</h3>
+                    <p class="help">
+                        To show all values of a node you just have to click on a node.
+                        The table on the right will be updated.
+                    </p>
+
+                <h3 class="help">Degree, betweenness, and clustering coefficients</h3>
+                    <p class="help">
+                        Three new network topology measure attributes can be computed for each node of the entire network: degree, betweenness, and clustering. On the <b>Nodes</b> section, click on <b>Compute net. measures</b>.
+                        In the <b>Select an attribute</b> menu they are identified by [], e.g. [degree].
+                    </p>
+
+                <h3 class="help">Accessing UniProt webpage</h3>
+                    <p class="help">If the nodes have an UniProt attribute, you can
+                        open a new tab showing the UniProt website.
+                        The query will search for the UniProt Accession of the node.
+                        To do it, click on a node and then on the
+                        UniProt Accession link that appears in the table of attribute values.
+                    </p>
+
+                <h3 class="help">Force-based algorithm</h3>
+                    <p class="help">
+                        The <b>force-based algorithm</b> is started automatically when a network is loaded.
+                        To <b>stop the forces</b> you must click on the <b>Stop</b> button.
+                        To <b>reset the forces</b> you must click on the <b>Start</b> button.
+                        Forces cannot be activated if there is edge bundling calculated. See <b>Edge bundling</b> section for details.
+                    </p>
+
+                <h4 class="help">Force parameters</h4>
+                    <p class="help">
+                        Some parameters can be easly set up to best fit the network layout according to yours analysis needs:
+                    </p>
+
+                    <ul style="list-style-type:circle;padding-left: 60px;padding-bottom: 20px">
+                            <li style="padding-bottom: 10px">
+                            <b>Repulsive</b>: define the <b>alpha</b> value for the non-overlap function. If nodes collide, the algorithm will try to separate them. <b>Zero</b> alpha value means this algorithm is disabled. It is a high complex algorithm and demands time. Thus it is disabled by default for large networks. A value from <b>0.5</b> to <b>0.6</b> is recommended for small and medium-sized networks.
+                            </li>
+                            <li style="padding-bottom: 10px">
+                            <b>Friction</b>: this value represents how free nodes are. Value near to <b>1</b> has the effect of nodes moving fast and freely. Value near to <b>0</b> has the effect of nodes moving slowly.
+                            </li>
+                            <li style="padding-bottom: 10px">
+                            <b>Charge</b>: define how charged (negatively) the nodes are. The effect is that the higher is the negative charge, the higher are the repulsive forces between nodes. This has similar effect to the <b>alpha</b> value of <b>Repulsive</b> parameter defined above, but the algorithm do not check if nodes collide. This algorithm is faster than the <b>Repulsive</b> and can be used even with large networks.
+                            </li>
+                            <li style="padding-bottom: 10px">
+                            <b>Link strength</b>: this parameter defines how strong the force is over an edge to mantain source and target nodes close to each other. Low value has the effect of a sparse layout; high value has the effect of a tight layout.
+                            </li>
+                    </ul>
+
+                <h3 class="help">Moving nodes to fixed positions while force is running</h3>
+                    <p class="help">
+                        Click on a node and <b>drag</b> it.
+                        All nodes you move are going to stay on fixed positions until you reset the force-based algorithm/layout.
+                        Others nodes (non fixed) are going to move according to the force-based algorithm.
+                        To <b>reset the forces</b> and set all nodes as <b>non-fixed</b> you must click on the <b>Start</b> button.
+                        To <b>stop the forces</b> you must click on <b>Stop</b>. When it is stopped, the nodes may still be moved.
+                        Nodes cannot be moved if there is edge bundling calculated. See <b>Edge bundling</b> section for details.
+                    </p>
+
+                <h3 class="help">Edge bundling</h3>
+                    <p class="help">
+                        To bundle the edges you must click on <b>Compute</b> edge bundling.
+                        The force-algorithm must be stopped before the computation.
+                        When there is edge bundling computed, the force-based algorithm cannot be started.
+                        <b>To start the forces again you  must remove the bundling edges</b>, clicking on <b>Destroy</b> bundling.
+                        You may compare the normal vs. bundling edges clicking on <b>Show</b> and on <b>Hide</b> bundling.
+                        When bundling edges, you cannot move any node or organelle.
+                        Selection and node labels can still be activated.
+                    </p>
+
+                <h3 class="help">Exporting the network diagram</h3>
+                    <p class="help">
+                        Write the file name on the text box bellow the network diagram.
+                        Select the file format: <b>SVG or PNG</b>. Click on <b>Export image</b> The SVG image can be edited
+                        in any Vectorial Editor. Our suggestion is Inkscape.
+                    </p>
+
+                <h3 class="help">Exporting information from the donut chart</h3>
+                    <p class="help">
+                        Write the file name on the text box bellow the donut chart diagram.
+                        Click on <b>Export data</b>.
+                        A CSV file will be downloaded with all cellular component names and corresponding percentage of nodes.
+                    </p>
+
+                <h3 class="help">Cerebral Layout</h3>
+                    <p class="help">
+                        The CerebralWeb can be used to create an alternative view.
+                        Click on <b>More options</b> (top menu) and then click on <b>Create CerebralWeb layout</b>.
+                        The diagram will be created at the bottom of the page.
+                    </p>
+
+
+                <h3>Powered by</h3>
+                    <div>
+                        <ul style="list-style-type:circle;padding-left: 60px;padding-bottom: 20px">
+                            <li>
+                                <a target="_blank" title="Click opens a new tab." href="http://d3js.org/">D3: Data-Driven Documents</a>
+                            </li>
+                            <li>
+                                <a target="_blank" title="Click opens a new tab." href="https://jquery.com/">jQuery</a>
+                            </li>
+                            <li>
+                                <a target="_blank" title="Click opens a new tab." href="http://felix-kling.de/JSNetworkX/">JSNetworkX</a>
+                            </li>
+                            <li>
+                                <a target="_blank" title="Click opens a new tab." href="http://nvd3.org/">NVD3</a>
+                            </li>
+                            <li>
+                                <a target="_blank" title="Click opens a new tab." href="https://github.com/upphiminn/d3.ForceBundle">d3.ForceBundle</a>
+                            </li>
+                            <li>
+                                <a target="_blank" title="Click opens a new tab." href="https://github.com/eligrey/FileSaver.js/">FileSaver.js</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <br/><br/>
+                </div> <!-- end row after row of videos -->
+            </div> <!-- content -->
+
+            <div id="sidebar_right" class="col-md-3">
+            </div>
+        </div>  <!-- end row -->
+    </div> <!-- end container -->
+
+</body>
+</html>
+
