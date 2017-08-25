@@ -92,11 +92,19 @@ if ((/Edge\/12./i.test(navigator.userAgent)) || (/Edge\/13./i.test(navigator.use
 }
 
 
-// implementação para fazer comparação com inteiros no método TICK de reposicionamento dos vértices, chamado milhões de vezes
+/**
+ * Hash for faster execution of tick() method that repositions hundreds of nodes
+ */
 main_components_ids = {"cytoplasm": 0, "extracellular": 1, "cell surface": 1, "plasma_membrane": 2, "cell_wall": 2};
 cytoplasm_id = main_components_ids["cytoplasm"];
 extracellular_id = main_components_ids["extracellular"];
 plasma_membrane_or_wall_id = main_components_ids["plasma_membrane"];
+
+/**
+ * Returns the numeric index of a cellular component.
+ * @param {string} name The name of a cellular component
+ * @returns The numeric index of this component in the hash "main_components_ids" 
+ */
 function get_component_id(name) {
     if (name in main_components_ids) {
         return main_components_ids[name];
@@ -105,10 +113,17 @@ function get_component_id(name) {
     }
 }
 
+/**
+ * Given a string, change the first char to UpperCase
+ */
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
+
+/**
+ * @description The global force-layout model
+ */
 force = d3.layout.force()
         .gravity(0.000001)
         .charge(charge)
@@ -116,8 +131,13 @@ force = d3.layout.force()
         .linkStrength(linkStrength)
         .size([w, h]);
 
-function reset_force(nodes, links) {
 
+/**
+ * Resets the force-layout model.
+ * @param {list} nodes The nodes the will replace the old ones.
+ * @param {list} links The links that will replace the old ones.
+ */
+function reset_force(nodes, links) {
     if (force !== null) {
         force.stop();
         force.nodes(null);
@@ -128,14 +148,17 @@ function reset_force(nodes, links) {
         force.links(links);
         force.start();
     }
-
 }
 
 $(document).ready(function () {
+
+    // when document is ready, load the basic cell diagram
     loadDiagram(null, null, false);
 
 
     d3.select("#donutchart_div").append("svg").attr("id","donutchart").style("width","300px").style("height","350px");
+
+    // integration with IIS -> checks the ~file~ parameter in the URL
     integrate();
 
     $('#exact').click(function () {
@@ -171,10 +194,6 @@ $(document).ready(function () {
     $('#remove_bundling').click(remove_edge_bundling);
     $('#hide_bundling').click(hide_edge_bundling);
 
-    // $('#exportcsv').click(function () {
-    //     getPercents(global_cc_data);
-    // });
-
     $('#getpic').click(getPicture);
 
     $('#export_donut').click(exportDonutChart);
@@ -188,17 +207,12 @@ $(document).ready(function () {
 
     $('#change_label').on("change",changeLabels);
 
-
-    //$('#remove_edges').click(removeLinks);
-    //$('#restore_edges').click(restoreLinks);
-
     $('#create_cerebral').click(create_cerebral_layout);
     d3.select('#cerebralDiv').style("visibility","hidden");
 
     $('input[type="checkbox"]').on('change', function() {
         $('input[name="' + this.name + '"]').not(this).prop('checked', false);
     });
-
 
     document
             .getElementById('cc_question')
@@ -207,8 +221,11 @@ $(document).ready(function () {
 });
 
 
-
-
+/**
+ * Creates a list of numbers from start to count
+ * @param {integer} start 
+ * @param {integer} count 
+ */
 function range(start, count) {
     return Array.apply(0, Array(count))
             .map(function (element, index) {
@@ -216,7 +233,9 @@ function range(start, count) {
             });
 }
 
-
+/**
+ * If force-layout is running stop it, otherwise start it.
+ */
 function play_stop_forces() {
     if (is_force_running) {
         is_force_running = false;
@@ -227,6 +246,9 @@ function play_stop_forces() {
     }
 }
 
+/**
+ * Update force-layout parameters according to the web interface.
+ */
 function changeForceParameters() {
     force.linkDistance(d3.select("#distance").node().value);
     force.friction(d3.select("#friction").node().value);
@@ -234,6 +256,8 @@ function changeForceParameters() {
     force.start();
 }
 
+
+// integration with IIS
 function handleFileIIS(f) {
     $(document).ready(function () {
        // console.log("File: " + f);
@@ -247,6 +271,10 @@ function handleFileIIS(f) {
     });
 }
 
+/**
+ * Handles the "file" parameter of the URL, that is, handles the XGMML network given through URL
+ * @param {event} evt The event object
+ */
 function handleFileSelect(evt) {
     $(document).ready(function () {
         try {
@@ -274,7 +302,11 @@ function handleFileSelect(evt) {
 
 
 
-
+/**
+ * Computes the new position of each node so that they try to avoid collision.
+ * @param {numeric} alpha The alpha parameter form 0 to 1
+ * @author Adapted from http://bl.ocks.org/GerHobbelt/3116713
+ */
 function collide(alpha) {
     return function (d) {
         var data = null;
@@ -306,8 +338,14 @@ function collide(alpha) {
     };
 }
 
-//<a href="http://www.w3schools.com">Visit W3Schools.com!</a>
 
+
+/**
+ * Given a node of a network, change its selected cellular component, that is, change its position in the cell diagram.
+ * @param {network} network 
+ * @param {node} node The selected node.
+ * @param {string} selectedCC The cellular component that will be set as Selected CC of this node.
+ */
 function changeSelectedCC(network, node, selectedCC){
 
         var old_component = node.attributes["Selected CC"].value.replace(/ /g, "_");
@@ -347,6 +385,11 @@ function changeSelectedCC(network, node, selectedCC){
 }
 
 
+/**
+ * Given a string that indicates a cellular component that is not default in CellNetVis tries to convert the value to a standard value to works in the system. The function tries to identify substrings, for instance, if a string contains the work "golgi" the function will return "golgi_apparatus".
+ * @param {string} value The cellular component that is being verified.
+ * @returns A cellular component (id) in the standards of CellNetVis
+ */
 function convertToCellNetVisCC(value){
     if (value == "unknown" || value == "" || value == null){
         return "not_found";
@@ -426,9 +469,6 @@ function convertToCellNetVisCC(value){
     }
     return "not_found";
 }
-
-
-
 
 
 
