@@ -16,11 +16,25 @@
 // You should have received a copy of the GNU General Public License
 // along with CellNetVis. If not, see <http://www.gnu.org/licenses/>.
 
+
+
+
 // Those that have employed the tool CellNetVis should mention:
+
 // CellNetVis: a web tool for visualization of biological networks using force-directed layout constrained by cellular components
 // Henry Heberle, Marcelo Falsarella Carazzolle, Guilherme P. Telles, Gabriela Vaz Meirelles, Rosane Minghim
-// BMC Bioinformatics
+// BMC Bioinformatics - to appear
 // 2017
+
+
+
+
+
+
+
+
+
+
 
 
 /* global cell, cytosol_keys,globalnetwork,globalkeepEnabled,unselectedEdge,
@@ -624,9 +638,7 @@ function constraint_network(network) {
 //            .call(force.drag);
 
 
-
-
-    //========================================== adapted from: http://bl.ocks.org/norrs/2883411    norrs’s block #2883411 June 6, 2012
+// adapted from: http://bl.ocks.org/norrs/2883411 norrs’s block #2883411 June 6, 2012
     var node_drag = d3.behavior.drag()
             .on("dragstart", dragstart)
             .on("drag", dragmove)
@@ -638,6 +650,9 @@ function constraint_network(network) {
             dragging = true;
         }
     }
+
+kkkaadaasdwqeq
+
 
     function dragmove(d, i) {
         if (!showing_bundling && bundling === null) {
@@ -1063,42 +1078,43 @@ function parseXGMML(xml) {
     d3.select("#cerebralDiv").style("visibility","hidden");
 
 
+    // if a network was loaded before, we need to take care of the old network and views and load the new network. This global variable stores this information.
     alreadyHasANetwork = true;
+
     var network = {};
     network.hash_ids = {};
     var error = false;
     var missingCC = false;
 
-    //console.log("iniciou parser");
+
     network.nodes = [];
-    //Leitura do XGMML
+    //Parsing XGMML
     xmlDoc = $.parseXML(xml),
             $xml = $(xmlDoc),
             $title = $xml.find("title");
-    //console.log("leu o xml");
-    //console.log($title);
 
     var att_names = [];
 
     var att_list_names = [];
 
     var node_index = 0;
+
+    //find all nodes of xgmml and for each:
     $(xml).find("node").each(function ()
     {
-
-        //console.log($(this).attr("ID"));
+        // parse node id
         var node_id =  "n_"+$(this).attr("ID").replace(/\./g, "_").replace(/\//g, "_");
 
+        // vector of attributes' names
         var node_att_names = [];
 
-
+        // ignore duplicated nodes
         if (node_id in network.hash_ids) {
             alert("XGMML redundant. There is more than one node with ID=" + node_id);
         } else {
 
             network.hash_ids[node_id] = node_index;
             node_index = node_index + 1;
-
 
             var node_label = $(this).attr("label");
             if (node_label == null || node_label == ""){
@@ -1108,17 +1124,22 @@ function parseXGMML(xml) {
                 //}
             }
 
+            // hash containing each attribute name and its value, type. <att name> : {value: <value>, type: <type>}
             var node_attributes = {};
 
+            // for each attribute of this node
             $(this).find("att").each(function () {
                 var at_name = $(this).attr("name");
 
                 var low_att = at_name.toLowerCase();
+
+                // if the node contains a standard selected cellular component attribute, name it "Selected CC"
                 if (low_att === "selected_cc" || low_att === "selected cc"||
                     low_att === "localization" ) {
                     at_name = "Selected CC";
                 }
 
+                // if the type of the attribute is not a list
                 if ($(this).attr("type").toLowerCase() !== 'list') {
                     if (at_name === "Selected CC") { //ignores if there are more than one value and overwrite the last
                         var att = {type: $(this).attr("type"), value: $(this).attr("value").toLowerCase()};
@@ -1132,8 +1153,7 @@ function parseXGMML(xml) {
                             var l = [].concat(node_attributes[at_name].value).concat($(this).attr("value"));
                             l = $.grep(l, function (n) {
                                 return(n);
-                            });
-                            //console.log(l);
+                            });                            
                             var att = {type: $(this).attr("type"), value: l};
                             node_attributes[at_name] = att;
                         }
@@ -1156,13 +1176,13 @@ function parseXGMML(xml) {
             });
 
             if (!missingCC) {
-                //console.log("Armazenamento dos atributos.");
-                // console.log(node_attributes);
+
 
                 if (att_names.indexOf("Selected CC") < 0) {
                     missingCC = true;
                 }else{
                     var current_component = node_attributes["Selected CC"].value.replace(/ /g, "_");
+  
                     if (current_component === "cell_surface"){
                         current_component = "extracellular";
                     }else{
@@ -1190,8 +1210,6 @@ function parseXGMML(xml) {
 
                     network.nodes.push(node);
 
-                    //console.log("Nó adicionado à rede.");
-
                     // read Selected CC without replacing unknown or not defined CC by Cytoplasm
                     var component = node_attributes["Selected CC"].value.replace(/ /g, "_").toLowerCase();
                     if (component in selected_cc_count) {
@@ -1202,6 +1220,7 @@ function parseXGMML(xml) {
                     used_organelles[component] = true;
                 }
             }
+    
             if (missingCC){
                 node_attributes["Changed Selected CC"] = {"type":"boolean", "value":false};
 
@@ -1276,35 +1295,11 @@ function parseXGMML(xml) {
     };
 
 
-    $('#submit_cc').click(function() {
-        //console.log("picker...");
-
+    /**
+     * If Selected CC or Localization is not defined, it will pop-up option to the user so he can choose the best option to handle this problem
+     */
+    $('#submit_cc').click(function() {        
         cc_picker = "Innate DB";
-
-        // if (document.getElementById("check_InnateDB").checked){
-        //     cc_picker = "Innate DB";
-        // }else{
-
-        //     if(document.getElementById("check_FirstCC").checked){
-        //         cc_picker = "First CC";
-        //         cc_attribute_name = $('#selectCC :selected').text();
-        //     }else{
-        //         if(document.getElementById("check_AllInCytosol").checked){
-        //             cc_picker = "All in Cytosol";
-        //         }else{
-        //             if(document.getElementById("check_AllInExtracellular").checked){
-        //                 cc_picker = "All in Extracellular";
-        //             }else{
-        //                 console.log("error. cc_picker == null");
-        //             }
-        //         }
-        //     }
-        // }
-        // console.log("cc_picker: "+cc_picker);
-
-        // document
-        //     .getElementById('cc_question')
-        //     .style.display = 'none';
 
         d3.select("#cc_question").style("display","none");
         complete_network();
@@ -1322,12 +1317,14 @@ function parseXGMML(xml) {
          document
         .getElementById('popup-click').click();
 
-
-    }else{
-        //console.log("ignoring the dialog.")
+    }else{        
         complete_network();
     }
 
+    /**
+     * This function attributes the given component value to the "Selected CC" attribute.
+     * @param {string} component The cellular component where nodes are going to be localized 
+     */
     function create_selected_all_in(component){
 
         for (var index = 0; index < network.nodes.length; index++){
@@ -1353,6 +1350,9 @@ function parseXGMML(xml) {
     }
 
 
+    /**
+     * Given a list of multiple values of cellular component for each node, this functions picks the first value and set it to the "Selected CC" attribute
+     */
     function create_selected_cc_using_first_cc(){
 
         var aux = network.nodes[0].attributes[cc_attribute_name].value;
@@ -1366,9 +1366,6 @@ function parseXGMML(xml) {
         for (var index = 0; index < network.nodes.length; index++){
 
             var selectedCC = {'type':"string", "value":"cytoplasm"}; // DEFAULT VALUE
-
-            //console.log(cc_attribute_name);
-            //console.log(network.nodes[index].attributes[cc_attribute_name].value);
 
             var node_ccs = network.nodes[index].attributes[cc_attribute_name].value.split(separator);
 
@@ -1397,7 +1394,6 @@ function parseXGMML(xml) {
 
             network.nodes[index].attributes["CellNetVis CCs"] = {"type":"string","value": ccs_string};
 
-            //console.log(selectedCC.value);
             network.nodes[index].attributes["Selected CC"] = selectedCC;
 
             var current_component = selectedCC.value.replace(/ /g, "_");
@@ -1406,8 +1402,6 @@ function parseXGMML(xml) {
                 current_component = "extracellular";
             }else{
                 if (!(current_component in cell) || current_component === "" || current_component === null) {
-                    //console.log("not in cell");
-                    //console.log(current_component);
                     current_component = "cytoplasm";
                 }
             }
@@ -1430,9 +1424,13 @@ function parseXGMML(xml) {
         $('#change_label').append("<option value=\"Selected CC\">Selected CC</option>");
     }
 
+
+    /**
+     * Given that there is no Localization nor Selected CC attribute, this function get the nodes ids and tries to carry the localization from InnateDB.
+     */
     function create_selected_cc_using_innatedb(){
 
-        console.log("Quering Localization from InnateDB.");
+        console.log("Querying Localization from InnateDB.");
 
         var genes = [];
         //console.log("att to query");
@@ -1462,7 +1460,6 @@ function parseXGMML(xml) {
                 for (var index = 0; index < genes.length; index++){
 
                     network.nodes[index].attributes["Selected CC"] = {'type':"string", "value":data[genes[index]].toLowerCase()};
-    // console.log(index + "," +data[genes[index]]+ ", "+genes[index]+"  -  "+network.nodes[index].attributes["Localization"].value);
 
                     var current_component = network.nodes[index].attributes["Selected CC"].value.replace(/ /g, "_");
 
@@ -1470,8 +1467,6 @@ function parseXGMML(xml) {
                         current_component = "extracellular";
                     }else{
                         if (!(current_component in cell) || current_component === "" || current_component === null) {
-                            //console.log("not in cell");
-                            //console.log(current_component);
                             current_component = "cytoplasm";
                         }
                     }
@@ -1503,11 +1498,11 @@ function parseXGMML(xml) {
 
 
     function complete_network(){
-        //console.log("completing network...");
-
         console.log("Missing cc: " +missingCC);
 
         if (missingCC){
+
+            // this code is commented because we decided to not allow the user to choose this options. The user may get wrong information and get lost in trying to get results from the analysis.
             // // 1. use the first value from attribute chosed by user
             // if(cc_picker == "First CC"){
             //     create_selected_cc_using_first_cc();
@@ -1534,8 +1529,6 @@ function parseXGMML(xml) {
             }
             console.log("Selected CC attribute created.")
         }
-
-
 
         var hash_names = {};
         for (name in network.nodes[0].attributes){
@@ -1568,9 +1561,7 @@ function parseXGMML(xml) {
             }
         }else{
 
-            var cc_attribute_name = cc_cellnetvis_name;
-            //console.log(cc_attribute_name);
-            //console.log(network.nodes[0].attributes);
+            var cc_attribute_name = cc_cellnetvis_name;            
             var aux = network.nodes[0].attributes[cc_attribute_name].value;
             var comma = aux.split(",");
             var dotcomma = aux.split(";");
@@ -1610,10 +1601,8 @@ function parseXGMML(xml) {
 
             remove_unused_organelles();
 
-
             var not_cytosol = {"cytoplasm": "", "plasma_membrane": "", "extracellular": "", "cytosol": "", "cell_wall": "", "cell_surface":""};
-            for (key in cell) {
-                if (!(key in not_cytosol)) {
+            for (key in cell) {                if (!(key in not_cytosol)) {
                     cytosol_keys[key] = "";
                 }
             }
@@ -1645,17 +1634,15 @@ function parseXGMML(xml) {
 
             constraint_network(network);
 
-
             createDonutChart();
 
-            //console.log("donut criado.");
             updateNumbers(network);
 
             d3.select('#color').property('value', 'Selected CC');
             d3.select('#change_label').property('value', 'Selected CC');
             updateColor();
 
-
+            // if network is big, disable the collide() function
             if (network.nodes.length > 1000 || network.links.length > 10000){
                 $("#alphaCollide").slider('disable');
             }else{
@@ -1667,14 +1654,15 @@ function parseXGMML(xml) {
     }
 }
 
-
+/**
+ * Given an attribute, it computes the group of each node that is used to color them.
+ * @param {string} attribute The attribute name
+ */
 function updateNodesGroup(attribute) {
-    //console.log(attribute);
+    
     var possible_values = getAttributeValues(attribute);
-    //console.log(possible_values);
 
-    var is_numeric = isNumericVector(possible_values);
-    //console.log(is_numeric);
+    var is_numeric = isNumericVector(possible_values);    
 
     if (is_numeric) {
         var max = Math.max.apply(Math, possible_values);
@@ -1700,7 +1688,7 @@ function updateNodesGroup(attribute) {
         }
     }
 
-//atualiza a variável group de cada nó
+    // update each node's group
     d3.selectAll('.node').attr('group', function (d) {
         d.group = d.attributes[attribute].value;
         return d.group;
@@ -1712,6 +1700,11 @@ function updateNodesGroup(attribute) {
     });
 }
 
+/**
+ * Checks if all elements in a list are numbers.
+ * @param {list} vector The vector of elements.
+ * @returns true or false
+ */
 function isNumericVector(vector) {
     for (var i = 0; i < vector.length; i++) {
         if ($.isNumeric(vector[i]) === false) {
@@ -1721,27 +1714,32 @@ function isNumericVector(vector) {
     return true;
 }
 
+/**
+ * Compute all possible values for this attribute based on all nodes of the network.
+ * @param {string} attribute The attribute name.
+ * @returns The vector containing all possible values of the attribute.
+ */
 function getAttributeValues(attribute) {
     var list = d3.selectAll('.node').data();
     var values = [];
-    //console.log("attribute value: " + attribute);
+    
     for (var i = 0; i < list.length; i++) {
         if (values.indexOf(list[i].attributes[attribute].value) < 0) {
             values.push(list[i].attributes[attribute].value);
         }
     }
-//console.log("get values attributes");
-//console.log(values);
     return values;
 }
 
-
-
+/**
+ * Given the user interaction changing the attribute that sets the color of nodes it will call the updateNodesGroup(attribute) function.
+ */
 function updateColor() {
     var attribute = d3.select("#color").node().value;
     updateNodesGroup(attribute);
 //    updateD3Scale(scale);
 }
+
 
 function showAllLabels() {
 //d3.selectAll(".node_label").style("visibility", "visible");
@@ -1763,12 +1761,12 @@ function hideAllLabels() {
 }
 
 function setLabels(attr) {
-//rascunho da função
     var nds = d3.selectAll(".node").data();
     for (nd in nds) {
-        nds[nd].label = nds[nd].attributes[attr].value; //verificar se é isso mesmo
+        nds[nd].label = nds[nd].attributes[attr].value; //to-check
     }
 }
+
 
 function updateDiagramLabels() {
     var nds = d3.selectAll(".node").data();
@@ -1790,36 +1788,47 @@ function remove_unused_organelles() {
     }
 }
 
+/**
+ * Updates the numbers of nodes and edges shown in the web interface.
+ * @param {network} network The network.
+ */
 function updateNumbers(network) {
     d3.select("#Nnodes").text(network.nodes.length + " nodes");
     d3.select("#Nedges").text(network.links.length + " links");
 }
 
 
-
+/**
+ * 
+ * @param {string} file The path for the network file
+ * @param {function} func The function that parses the network
+ * @param {boolean} iis True if network comes from other server, false if the user load the network xgmml manually
+ */
 function loadDiagram(file, func, iis) {
     d3.xml("circular_cell_structure.svg", "image/svg+xml", function (xml) {
         var importedNode = document.importNode(xml.documentElement, true);
         $(document).ready(function () {
             resetGlobalVariables();
-            d3.select("#chart").selectAll("*").remove();
-            //console.log("removeu diagrama");
-            d3.select("#chart").node().appendChild(importedNode);
-            //console.log("adicionou novo diagrama");
-            var cellt = d3.selectAll("#cell_group")[0][0].getAttribute("transform");
-           // console.log("cell transform:")
-            //console.log(cellt);
 
+            // remove the current diagram
+            d3.select("#chart").selectAll("*").remove();
+            
+            // append a new diagram
+            d3.select("#chart").node().appendChild(importedNode);
+            
+            var cellt = d3.selectAll("#cell_group")[0][0].getAttribute("transform");
+           
             cellt = cellt.replace("translate(", "");
             cellt = cellt.replace(")", "");
             cellt = cellt.split(transform_svg_separator);
             var cell_t = [parseFloat(cellt[0]), parseFloat(cellt[1])];
 
+            // Parse the cellular components svg elements and configure the centers of shapes and translate functions of the diagram
             function updateCXCY() {
                 var group_components = d3.selectAll(".group_component")[0];
-                for (var i = 0; i < group_components.length; i++) { //para cada grupo
+                for (var i = 0; i < group_components.length; i++) { // for each group
                     var group_component = group_components[i];
-                    var t = group_component.getAttribute("transform");  //seleciona a partição celular deste grupo
+                    var t = group_component.getAttribute("transform");
 
                     t = t.replace("translate(", "");
                     t = t.replace(")", "");
@@ -1839,9 +1848,8 @@ function loadDiagram(file, func, iis) {
                         used_organelles[id] = false;
                     }
 
+                    // store the center of this cellular component, also its radius, max and min, and its id
                     cell[id] = {cx: cx, cy: cy, rmax: rmax, rmin: 0, id: id};
-
-
                 }
 
                 //set rmin for plasma_membrane = rmax from cytoplasm
@@ -1849,7 +1857,7 @@ function loadDiagram(file, func, iis) {
                 cell["cell_wall"].rmin = cell["plasma_membrane"].rmax + 0.6 * delta;
             }
 
-            //d3.select("#cell_group").attr("transform", "translate(" + 0 + "," + 0 + ")");
+            // append the diagram and translate it accordingly
             var svg = d3.select("#diagram").append("svg:g").attr("id", "network_group").attr("transform", "translate(" + 0 + transform_svg_separator + 0 + ")");
 
             function move() {
@@ -1866,11 +1874,10 @@ function loadDiagram(file, func, iis) {
                     force.start();
                 }
             }
-            //console.log("Definiu função move");
-
+            
             var not_move = {"cytoplasm_group": "", "plasma_membrane_group": "", "cell_wall_group": "", "extracellular_group": ""};
             var group_components = d3.selectAll(".group_component")[0];
-            //console.log(group_components);
+            
             for (var i = 0; i < group_components.length; i++) {
                 var group_component = group_components[i];
                 if (!(group_component.id in not_move)) {
@@ -1901,12 +1908,16 @@ function loadDiagram(file, func, iis) {
 
 
 
-
-
-
+/**
+ * Returns the correct x,y values after constraining the node inside plasma membrane or cell wall.
+ * @param {float} x 
+ * @param {float} y 
+ * @param {dict} cell_component 
+ * @param {float} R 
+ */
 function mapping_walls(x, y, cell_component, R) {
-//NÃO SE APLICA AO CYTOPLASM   ou EXTRACELLULAR
-    if (R > cell_component.rmax - ddelta) { //se estiver fora do circulo, pela borda mais externa, seta o raio para essa borda
+//note: not applied for cytosol or extracellular
+    if (R > cell_component.rmax - ddelta) { //if it is out of the circle, at the outer border, set radius to this border
         return {x: (cell_component.rmax - ddelta) / R * (x - cell_component.cx) + cell_component.cx, y: (cell_component.rmax - ddelta) / R * (y - cell_component.cy) + cell_component.cy};
     } else {
         if (R < cell_component.rmin + ddelta) {
@@ -1917,11 +1928,17 @@ function mapping_walls(x, y, cell_component, R) {
     }
 }
 
-//retorna o correto valor de x,y após aplicar as restrições
+/**
+ * Returns the correct x,y values after constraining the node inside a organelle.
+ * @param {float} x 
+ * @param {float} y 
+ * @param {dict} cell_component 
+ * @param {float} R 
+ */
 function mapping_organelles(x, y, cell_component, R) {
-//NÃO SE APLICA AO CYTOPLASM   ou EXTRACELLULAR
+//note: not applied for cytosol or extracellular
 
-    if (R > cell_component.rmax - ddeltao) { //se estiver fora do circulo, pela borda mais externa, seta o raio para essa borda
+    if (R > cell_component.rmax - ddeltao) {//if it is out of the circle, at the outer border, set radius to this border
         return {x: (cell_component.rmax - ddeltao) / R * (x - cell_component.cx) + cell_component.cx, y: (cell_component.rmax - ddeltao) / R * (y - cell_component.cy) + cell_component.cy};
     } else {
         return {x: x, y: y};
@@ -1929,13 +1946,19 @@ function mapping_organelles(x, y, cell_component, R) {
 }
 
 
+/**
+ * Returns the correct x,y values after constraining the node inside a cytosol.
+ * @param {float} x 
+ * @param {float} y 
+ * @param {dict} cell_component 
+ * @param {float} R 
+ */
 function mapping_cytoplasm(x, y, cell, cell_component, R) {
-    //se estiver fora do cytoplasm
-    if (R > cell_component.rmax - delta) { //se estiver fora do circulo, pela borda mais externa, seta o raio para essa borda
+    // if is out of cytoplasm
+    if (R > cell_component.rmax - delta) { //if it is out of the circle, at the outer border, set radius to this border
         return {x: (cell_component.rmax - ddelta) / R * (x - cell_component.cx) + cell_component.cx, y: (cell_component.rmax - ddelta) / R * (y - cell_component.cy) + cell_component.cy};
     } else {
-    //se é pra estar no citosol mas está em uma organela, tira dessa organela:
-
+        // if it should be on cytosol but it is inside some organelle
         for (key in cytosol_keys) {
             cell_component = cell[key];
             if (used_organelles[key] === true) {
@@ -1946,11 +1969,14 @@ function mapping_cytoplasm(x, y, cell, cell_component, R) {
             }
         }
     }
-    // se não, se não tiver de transladar o vértice...
+    // else, if it is all correct, don't change anything
     return {x: x, y: y};
 }
 
 
+/**
+ * Returns the correct x,y values after constraining the node outside of the cell.
+ */
 function mapping_extracellular(x, y, cell) {
     var border = null;
     if (used_organelles["cell_wall"] === true) {
@@ -1961,11 +1987,12 @@ function mapping_extracellular(x, y, cell) {
 
     var R = Math.sqrt((x - border.cx) * (x - border.cx) + (y - border.cy) * (y - border.cy));
 
-    if (R < (border.rmax + ddelta)) { //se estiver dentro do circulo, pela borda mais externa, seta o raio para essa borda
+    // if inside the cell
+    if (R < (border.rmax + ddelta)) {
         return {x: (border.rmax + ddelta) / R * (x - border.cx) + border.cx, y: (border.rmax + ddelta) / R * (y - border.cy) + border.cy};
 
     } else {
-        //se estiver fora do retângulo (bordas máximas)
+        // if out of the diagram
         var xt = 0;
         var yt = 0;
         if (x < (ddelta)) {
@@ -2228,8 +2255,6 @@ function getParams() {
         p = pairs[i].split('=');
         params[ p[0] ] = p[1];
     }
-    //console.log("Parâmetros: na URL.");
-    //console.log(params);
     return params;
 }
 
@@ -2268,7 +2293,9 @@ function integrate() {
 
 
 
-
+/**
+ * Reset all global variables.
+ */
 function resetGlobalVariables() {
     cell = {};
     used_organelles = {};
@@ -2287,7 +2314,7 @@ function resetGlobalVariables() {
     }
     globalnetwork = null;
     globalkeepEnabled = false;
-    cellids = {}; //organelas
+    cellids = {}; //organelles
     cytosol_keys = {};
     globalFile = null;
     is_force_running = true;
@@ -2327,10 +2354,9 @@ function resetGlobalVariables() {
 }
 
 
-
-
-
-
+/**
+ * Exports the diagram as .svg or .png, depending on the selected option on the web interface.
+ */
 function getPicture() {
     var serializer = new XMLSerializer();
     var svg = document.getElementById("diagram");
@@ -2381,31 +2407,6 @@ function getPicture() {
                     a.click();
                 };
                 return false;
-            } else {
-                var file = "";
-                if (choosen_type === '.txt') { //exportar listas de elementos das intersecções em vez de diagrama propriamente dito
-                    for (var i = 0; i < labelsDiagram.length; i++) {
-                        var id = labelsDiagram[i].toUpperCase();
-                        var set = intersectionsSet[id];
-
-                        if (set !== null) {
-                            var textName = "[";
-                            textName = textName + document.getElementById("name" + id[0]).value;
-                            for (var j = 1; j < id.length; j++) {
-                                textName = textName + "] and [" + document.getElementById("name" + id[j]).value;
-                            }
-                            textName = textName + "]";
-
-                            file = file + textName + ": ";
-                            file = file + set.toString();
-                            file = file + "\n";
-                            //console.log(file);
-                        }
-
-                    }
-                    saveAs(new Blob([file], {type: "text/plain;charset=" + document.characterSet}), document_name);
-                    return false;
-                }
             }
         }
     }
@@ -2506,7 +2507,9 @@ function exportDonutChart() {
 
 
 
-
+/**
+ * Exports a txt file to be download containing the percentages of nodes in each cellular component.
+ */
 function getPercents(dataset, document_name) {
     if (dataset !== null) {
 
@@ -2524,13 +2527,15 @@ function getPercents(dataset, document_name) {
     return false;
 }
 
-
+/**
+ * Search for the string typed by the user in the inputText HTML element and highlight nodes with label matching.
+ * @param {string} inputID The inputText element' id
+ */
 function search(inputID) {
     if (globalnetwork !== null) {
         clear_visibility(false);
 
         var exact = d3.select("#exact").node().checked;
-        //ID do campo onde o texto de busca se encontra
         var str = d3.select(inputID).node().value.toUpperCase();
 
 
@@ -2607,6 +2612,10 @@ function search(inputID) {
 }
 
 
+
+/**
+ * Hides or shows nodes according to the attribute "visible" of each node.
+ */
 function updateGraphVisibility() {
 
     d3.selectAll(".node").style("visibility", function (d) {
@@ -2624,7 +2633,9 @@ function updateGraphVisibility() {
     }
 }
 
-//tornar os vértices não selecionados invisíveis (e suas arestas)
+/**
+ * Makes not selected elements hidden.
+ */
 function keep() {
     globalkeepEnabled = true;
     var nds = d3.selectAll(".node").data();
@@ -2643,6 +2654,11 @@ function keep() {
     force_only_selected();
 }
 
+
+/**
+ * Reset the visible elements and labels, makes network clean again.
+ * @param {boolean} force_start True if force should start.
+ */
 function clear_visibility(force_start) {
     if (globalnetwork !== null) {
         globalkeepEnabled = false;
@@ -2687,6 +2703,9 @@ function clear_visibility(force_start) {
 }
 
 
+/**
+ * Unselect all nodes.
+ */
 function unselect_nodes() {
     if (globalnetwork !== null) {
 
@@ -2729,7 +2748,13 @@ function unselect_nodes() {
     }
 }
 
+
+/**
+ * Applies force-layout only on selected nodes.
+ */
 function force_only_selected() {
+    // to-check
+
     if (globalnetwork !== null) {
         newnodes = [];
         for (var i in globalnetwork.nodes) {
