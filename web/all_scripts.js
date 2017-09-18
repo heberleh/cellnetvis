@@ -21,10 +21,9 @@
 
 // Those that have employed the tool CellNetVis should mention:
 
-// CellNetVis: a web tool for visualization of biological networks using force-directed layout constrained by cellular components
-// Henry Heberle, Marcelo Falsarella Carazzolle, Guilherme P. Telles, Gabriela Vaz Meirelles, Rosane Minghim
-// BMC Bioinformatics - to appear
-// 2017
+// Heberle, H., Carazzolle, M. F., Telles, G. P., Meirelles, G. V., & Minghim, R. (2017). 
+// CellNetVis : a web tool for visualization of biological networks using force-directed layout constrained by cellular components. 
+// BMC Bioinformatics, 18(10), 395. https://doi.org/10.1186/s12859-017-1787-5
 
 
 
