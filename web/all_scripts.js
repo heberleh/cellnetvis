@@ -650,8 +650,6 @@ function constraint_network(network) {
         }
     }
 
-kkkaadaasdwqeq
-
 
     function dragmove(d, i) {
         if (!showing_bundling && bundling === null) {
