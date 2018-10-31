@@ -3,3 +3,5 @@ Heberle, H., Carazzolle, M. F., Telles, G. P., Meirelles, G. V., & Minghim, R.  
 
 https://doi.org/10.1186/s12859-017-1787-5
 
+# CellNetVis web-tool
+http://bioinfo03.ibi.unicamp.br/lnbio/IIS2/cellnetvis/
