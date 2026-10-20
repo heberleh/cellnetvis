@@ -78,6 +78,68 @@ coloring = ['rgb(255,255,204)', 'rgb(255,237,160)', 'rgb(254,217,118)', 'rgb(254
 
 cc_picker = null;
 
+/**
+ * Shows a dismissible notice at the top of the content column. It replaces alert().
+ * The message is inserted as text (never as HTML), so file contents cannot inject markup.
+ * @param {string} message The text to show.
+ * @param {string} type One of "info", "success", "warning" (default) or "danger".
+ */
+function notify(message, type) {
+    type = type || "warning";
+    var $box = $("#notices");
+    if ($box.length === 0) {
+        $box = $('<div id="notices" aria-live="polite"></div>').prependTo("body");
+    }
+    // do not stack the same message again and again
+    $box.children(".alert").filter(function () {
+        return $(this).find(".notice-text").text() === message;
+    }).remove();
+
+    var $n = $('<div class="alert alert-dismissible" role="status"></div>').addClass("alert-" + type);
+    $n.append('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
+    $n.append($('<span class="notice-text"></span>').text(message));
+    $box.append($n);
+    if ($n[0].getBoundingClientRect().top < 0 && $n[0].scrollIntoView) {
+        $n[0].scrollIntoView();
+    }
+    return $n;
+}
+
+/**
+ * Hides the "loading" overlay.
+ */
+function hideLoading() {
+    $("#loading-container").css("display", "none");
+}
+
+/**
+ * Adds an option to a select element, unless it already has one with this value.
+ * Values come from user files, so they are never parsed as HTML.
+ * @param {string} selector jQuery selector of the select element.
+ * @param {string} value The option value (and text).
+ */
+function addSelectOption(selector, value) {
+    var $select = $(selector);
+    var exists = false;
+    $select.children("option").each(function () {
+        if (this.value === value) {
+            exists = true;
+        }
+    });
+    if (!exists) {
+        $select.append($("<option></option>").attr("value", value).text(value));
+    }
+}
+
+/**
+ * Escapes a value so it can be written inside HTML.
+ * @param {*} value Any value; it is converted to a string.
+ */
+function escapeHtml(value) {
+    return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 //var nucleus = {xmin: 605, xmax: 997, ymin: h - 27, ymax: h - 300};
 //var plasma_membrane = {xmin: 1, xinfmax: 152, yinfmin: h - 15, yinfmax: h - 595, xsupmax: 945, ysupmin: h - 616, ysupmax: h - 700};
 //var delta = 0;
@@ -127,14 +189,6 @@ function get_component_id(name) {
 }
 
 /**
- * Given a string, change the first char to UpperCase
- */
-String.prototype.capitalize = function() {
-    return this.charAt(0).toUpperCase() + this.slice(1);
-}
-
-
-/**
  * @description The global force-layout model
  */
 force = d3.layout.force()
@@ -166,7 +220,10 @@ function reset_force(nodes, links) {
 $(document).ready(function () {
 
     // when document is ready, load the basic cell diagram
-    loadDiagram(null, null, false);
+    // (when the URL has a ?file= parameter, integrate() loads the diagram together with the network)
+    if (!("file" in getParams())) {
+        loadDiagram(null, null, false);
+    }
 
 
     d3.select("#donutchart_div").append("svg").attr("id","donutchart").style("width","300px").style("height","350px");
@@ -208,6 +265,8 @@ $(document).ready(function () {
     $('#hide_bundling').click(hide_edge_bundling);
 
     $('#getpic').click(getPicture);
+
+    $('#load_example').click(loadExample);
 
     $('#export_donut').click(exportDonutChart);
 
@@ -270,7 +329,10 @@ function changeForceParameters() {
 }
 
 
-// integration with IIS
+// the example network that ships with CellNetVis
+var EXAMPLE_NETWORK_URL = "examples/rig-i-like-receptor-innatedb.xgmml";
+
+// loads a network given as text (used by ?file=, by the example button; originally written for the IIS integration)
 function handleFileIIS(f) {
     $(document).ready(function () {
        // console.log("File: " + f);
@@ -285,30 +347,41 @@ function handleFileIIS(f) {
 }
 
 /**
- * Handles the "file" parameter of the URL, that is, handles the XGMML network given through URL
+ * Handles the file chosen by the user in the "Load Network" input. Only the first file is used.
  * @param {event} evt The event object
  */
 function handleFileSelect(evt) {
     $(document).ready(function () {
         try {
-            $("#loading-container").css("display", "block");
-            //d3.select("#network_group").selectAll("*").remove();
-            //d3.select("#chart").selectAll("*").remove();
-
-            //loadDiagram();
-
-            var files = evt.target.files; // FileList object
-            // files is a FileList of File objects. List some properties.
-            for (var i = 0, f; f = files[i]; i++) {
-                loadDiagram(f, loadNetwork, false);
-                //console.log("leu arquivo");
-                if (i == 1) {
-                    alert("Select only one XGMML file.");
-                    break;
-                }
+            var f = evt.target.files[0]; // first File object of the FileList
+            if (!f) {
+                return;
             }
+            $("#loading-container").css("display", "block");
+            loadDiagram(f, loadNetwork, false);
         } catch (err) {
-            console.log(err.message);
+            hideLoading();
+            notify("Could not load the file: " + err.message, "danger");
+        }
+    });
+}
+
+/**
+ * Loads the example network that is bundled with CellNetVis (same origin).
+ */
+function loadExample() {
+    $("#loading-container").css("display", "block");
+    $.ajax({
+        url: EXAMPLE_NETWORK_URL,
+        type: 'GET',
+        dataType: 'text',
+        timeout: 100000,
+        success: function (xml) {
+            handleFileIIS(xml);
+        },
+        error: function () {
+            hideLoading();
+            notify("Could not load the example network (" + EXAMPLE_NETWORK_URL + ").", "danger");
         }
     });
 }
@@ -420,7 +493,7 @@ function convertToCellNetVisCC(value){
         }
     }
 
-    if( value.indexOf("cell_surface">=0) ){
+    if (value.indexOf("cell_surface") >= 0) {
        return "extracellular";
     }
     if (value.indexOf("endoplas")>=0){
@@ -486,29 +559,32 @@ function convertToCellNetVisCC(value){
 
 
 function updateContentTable(network, node) {
+    // Attribute names and values come from the loaded file: they are escaped before being written as HTML.
     $("#rows").empty();    
 
+    var selectedCC = node.attributes["Selected CC"].value;
+
     var html = "<tr><td class=\"text-left\">" + "ID" + "</td>";
-    html += "<td class=\"text-left\">" + node.id.replace("n_","") + "</td>";
+    html += "<td class=\"text-left\">" + escapeHtml(node.id.replace("n_","")) + "</td>";
     html += "</tr>";
     html += "<tr><td class=\"text-left\">" + "Selected CC" + "</td>";
     html += "<td class=\'text-left\'>" +
                 "<select id=\'updateCCchooser\'>"
-                        +"<option value=\'" + node.attributes["Selected CC"].value + "\'>"
-                        +                     node.attributes["Selected CC"].value.replace(/_/g, " ") + "*"
+                        +"<option value=\'" + escapeHtml(selectedCC) + "\'>"
+                        +                     escapeHtml(selectedCC.replace(/_/g, " ")) + "*"
                         + "</option>" ;
     for (var cc in cell){
-        if (cc != node.attributes["Selected CC"].value){
-            html += "<option value=\'"+cc+"\'>"+cc.replace(/_/g, " ")+"</option>";
+        if (cc != selectedCC){
+            html += "<option value=\'"+escapeHtml(cc)+"\'>"+escapeHtml(cc.replace(/_/g, " "))+"</option>";
         }
     }
-    html += "</td>";
+    html += "</select></td>";
     html += "</tr>";
 
 
 
     html += "<tr><td class=\"text-left\">" + "Extracted CCs" + "</td>";
-    html += "<td class=\"text-left\">" + node.attributes["CellNetVis CCs"].value.toString().replace(/_/g, " ").replace(/,/g, ", ") + "</td>";
+    html += "<td class=\"text-left\">" + escapeHtml(node.attributes["CellNetVis CCs"].value.toString().replace(/_/g, " ").replace(/,/g, ", ")) + "</td>";
     html += "</tr>";
 
     $('#rows').append(html);
@@ -529,11 +605,12 @@ function updateContentTable(network, node) {
         if (name.toLowerCase() == "selected cc" || name.toLowerCase() == "cellnetvis ccs"){
             continue;
         }
-        var html = "<tr><td class=\"text-left\">" + name + "</td>";
+        var html = "<tr><td class=\"text-left\">" + escapeHtml(name) + "</td>";
         if (name.toLowerCase() === "uniprot id" || name.toLowerCase() === "uniprotid" || name.toLowerCase() === "uniprot_id") {
-            html += "<td class=\"text-left\">" + "<a  href='http://www.uniprot.org/uniprot/" + node.attributes[name].value + "' target='_blank' title='Click opens a new tab.'>" + node.attributes[name].value + " (click to search it at UniProt.org)</a> " + "</td>";
+            var accession = String(node.attributes[name].value);
+            html += "<td class=\"text-left\">" + "<a  href='https://www.uniprot.org/uniprotkb/" + encodeURIComponent(accession) + "' target='_blank' rel='noopener' title='Click opens a new tab.'>" + escapeHtml(accession) + " (click to search it at UniProt.org)</a> " + "</td>";
         } else {
-            html += "<td class=\"text-left\">" + node.attributes[name].value + "</td>";
+            html += "<td class=\"text-left\">" + escapeHtml(node.attributes[name].value) + "</td>";
         }
         html += "</tr>";
         $('#rows').append(html);
@@ -1013,37 +1090,23 @@ function compute_network_measures() {
                     node.attributes["[degree]"] = {type: "numeric", value: degree[i]};
                 }
 
-                $(document).ready(function () {
-                    $('#color').append("<option value=\"[betweenness]\">[betweenness]</option>");
-                });
-
-                $(document).ready(function () {
-                    $('#change_label').append("<option value=\"[betweenness]\">[betweenness]</option>");
-                });
-
-                //change_label
-                //$(document).ready(function() {
-                //    $('#color').append("<option value=\"[eigenvector]\">[eigenvector]</option>");
-                //});
-                $(document).ready(function () {
-                    $('#color').append("<option value=\"[clustering]\">[clustering]</option>");
-                });
-                $(document).ready(function () {
-                    $('#color').append("<option value=\"[degree]\">[degree]</option>");
-                });
-
-                $(document).ready(function () {
-                    $('#change_label').append("<option value=\"[clustering]\">[clustering]</option>");
-                });
-                $(document).ready(function () {
-                    $('#change_label').append("<option value=\"[degree]\">[degree]</option>");
-                });
+                // (addSelectOption does not add an option twice when the measures are computed again)
+                addSelectOption('#color', "[betweenness]");
+                addSelectOption('#change_label', "[betweenness]");
+                addSelectOption('#color', "[clustering]");
+                addSelectOption('#color', "[degree]");
+                addSelectOption('#change_label', "[clustering]");
+                addSelectOption('#change_label', "[degree]");
                 $.unblockUI();
             }
         });
     }
 }
 
+/**
+ * Given a string, change the first char of every word to UpperCase.
+ * (This is the definition that was in effect in the original code: it was defined twice and the later one won.)
+ */
 String.prototype.capitalize = function () {
     return this.replace(/(^|\s)([a-z])/g, function (m, p1, p2) {
         return p1 + p2.toUpperCase();
@@ -1051,20 +1114,32 @@ String.prototype.capitalize = function () {
 };
 
 function loadNetwork(f, iis) {
-    //console.log("iniciou loadnetwork");
     alreadyHasANetwork = true;
     error = false;
     if ((typeof iis === 'undefined') || (!iis)) {
         var reader = new FileReader();
         reader.onload = function (e) {
-            parseXGMML(e.target.result);
-            $("#loading-container").css("display", "none");
+            parseXGMMLSafely(e.target.result);
         };
-        if (!error) {
-            reader.readAsText(f);
-        }
+        reader.onerror = function () {
+            hideLoading();
+            notify("The file could not be read.", "danger");
+        };
+        reader.readAsText(f);
     } else {
-        parseXGMML(f);
+        parseXGMMLSafely(f);
+    }
+}
+
+/**
+ * Parses a network and reports problems in the page instead of leaving the "loading" overlay on forever.
+ */
+function parseXGMMLSafely(xml) {
+    try {
+        parseXGMML(xml);
+    } catch (err) {
+        hideLoading();
+        notify("The network could not be loaded. Please check that the file is a valid XGMML file. (" + err.message + ")", "danger");
     }
 }
 
@@ -1107,7 +1182,7 @@ function parseXGMML(xml) {
 
         // ignore duplicated nodes
         if (node_id in network.hash_ids) {
-            alert("XGMML redundant. There is more than one node with ID=" + node_id);
+            notify("XGMML redundant. There is more than one node with ID=" + node_id);
         } else {
 
             network.hash_ids[node_id] = node_index;
@@ -1158,10 +1233,8 @@ function parseXGMML(xml) {
                     if (att_names.indexOf(at_name) < 0) {
                         att_names.push(at_name);
                         if (att_list_names.indexOf(at_name) < 0) {
-                            $(document).ready(function () {
-                                    $('#color').append("<option value=\"" + at_name + "\">" + at_name + "</option>");
-                                    $('#change_label').append("<option value=\"" + at_name + "\">" + at_name + "</option>");
-                            });
+                            addSelectOption('#color', at_name);
+                            addSelectOption('#change_label', at_name);
                         }
                     }
                 } else {
@@ -1245,6 +1318,10 @@ function parseXGMML(xml) {
     });
 
 
+    if (network.nodes.length === 0) {
+        throw new Error("no <node> elements were found in the file");
+    }
+
     // get list of UNIPROT/etc ID
     var query_ids = [];
     var auxnode = network.nodes[0];
@@ -1274,7 +1351,7 @@ function parseXGMML(xml) {
     }
 
 
-    var showPopupCC = function(event) {
+    var showPopupCC = function() {
         $('#selectCC').empty();
 
         $.each(att_names, function (index, value) {
@@ -1284,35 +1361,29 @@ function parseXGMML(xml) {
             }));
         });
 
-
+        hideLoading();
         d3.select("#cc_question").style("display","block");
-        // document
-        //     .getElementById('cc_question')
-        //     .style.display = 'block';
     };
 
 
     /**
      * If Selected CC or Localization is not defined, it will pop-up option to the user so he can choose the best option to handle this problem
+     * (.off() first: every network that is parsed registers its own handler, the old ones must not run again)
      */
-    $('#submit_cc').click(function() {        
+    $('#submit_cc').off('click').on('click', function() {
         cc_picker = "Innate DB";
 
         d3.select("#cc_question").style("display","none");
+        $("#loading-container").css("display", "block");
         complete_network();
     });
 
     if (missingCC){
 
-        $('#color').append("<option value=\"" + "Changed Selected CC" + "\">" + "Changed Selected CC" + "</option>");
-        $('#change_label').append("<option value=\"" + "Changed Selected CC" + "\">" + "Changed Selected CC" + "</option>");
+        addSelectOption('#color', "Changed Selected CC");
+        addSelectOption('#change_label', "Changed Selected CC");
 
-        document
-        .getElementById('popup-click')
-        .addEventListener('click', showPopupCC);
-
-         document
-        .getElementById('popup-click').click();
+        showPopupCC();
 
     }else{        
         complete_network();
@@ -1342,8 +1413,8 @@ function parseXGMML(xml) {
             }
             used_organelles[current_component] = true;
         }
-        $('#color').append("<option value=\"Selected CC\">Selected CC</option>");
-        $('#change_label').append("<option value=\"Selected CC\">Selected CC</option>");
+        addSelectOption('#color', "Selected CC");
+        addSelectOption('#change_label', "Selected CC");
     }
 
 
@@ -1417,115 +1488,133 @@ function parseXGMML(xml) {
             used_organelles[current_component] = true;
 
         }
-        $('#color').append("<option value=\"Selected CC\">Selected CC</option>");
-        $('#change_label').append("<option value=\"Selected CC\">Selected CC</option>");
+        addSelectOption('#color', "Selected CC");
+        addSelectOption('#change_label', "Selected CC");
+    }
+
+
+    var INNATEDB_SERVICE_URL = "https://www.innatedb.com/cerebralLocalizationWS.do";
+
+    /**
+     * Given that there is no Localization nor Selected CC attribute, this function get the nodes ids and tries to carry the localization from InnateDB.
+     * The request is asynchronous: done(true) is called when the localizations were applied, done(false) when the service could not be used.
+     * @param {function} done Callback with one boolean argument.
+     */
+    function create_selected_cc_using_innatedb(done){
+
+        var genes = [];
+        var query = "";
+
+        try {
+            if (attname_query.toLowerCase() === "innatedb reference"){
+                for (var i = 0; i < network.nodes.length; i++){
+                    genes.push(network.nodes[i].attributes[attname_query].value.split("?id=")[1].toString());
+                }
+            }else{
+                for (var i = 0; i < network.nodes.length; i++){
+                    genes.push(network.nodes[i].attributes[attname_query].value.toString());
+                }
+            }
+            query = 'xref='+query_type+'&ids=' + JSON.stringify(genes).replace('\[', '').replace('\]', '').replace(/\"/g, '');
+        } catch (err) {
+            done(false);
+            return;
+        }
+
+        $.ajax({
+            dataType: "json",
+            type: "GET",
+            url: INNATEDB_SERVICE_URL,
+            data: query,
+            timeout: 60000,
+            success: function(data){
+                try {
+                    for (var index = 0; index < genes.length; index++){
+
+                        var localization = (data && typeof data[genes[index]] === "string") ? data[genes[index]] : "";
+                        network.nodes[index].attributes["Selected CC"] = {'type':"string", "value":localization.toLowerCase()};
+
+                        var current_component = network.nodes[index].attributes["Selected CC"].value.replace(/ /g, "_");
+
+                        if (current_component == "cell_surface"){
+                            current_component = "extracellular";
+                        }else{
+                            if (!(current_component in cell) || current_component === "" || current_component === null) {
+                                current_component = "cytoplasm";
+                            }
+                        }
+
+                        network.nodes[index].group = network.nodes[index].attributes[d3.select("#color").node().value].value;
+                        network.nodes[index].component = current_component;
+                        network.nodes[index].component_id = get_component_id(current_component);
+
+                        current_component = network.nodes[index].attributes["Selected CC"].value.replace(/ /g, "_");
+
+                        if (current_component in selected_cc_count) {
+                            selected_cc_count[current_component] = selected_cc_count[current_component] + 1;
+                        } else {
+                            selected_cc_count[current_component] = 1;
+                        }
+                        used_organelles[current_component] = true;
+                    }
+                } catch (err) {
+                    done(false);
+                    return;
+                }
+                addSelectOption('#color', "Selected CC");
+                addSelectOption('#change_label', "Selected CC");
+                done(true);
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+                done(false);
+            }
+        });
     }
 
 
     /**
-     * Given that there is no Localization nor Selected CC attribute, this function get the nodes ids and tries to carry the localization from InnateDB.
+     * Last step of the loading: for networks without "Selected CC" it first asks InnateDB (asynchronously) for the localizations.
      */
-    function create_selected_cc_using_innatedb(){
-
-        console.log("Querying Localization from InnateDB.");
-
-        var genes = [];
-        //console.log("att to query");
-        //console.log(attname_query);
-
-        if (attname_query.toLowerCase() === "innatedb reference"){
-            for (var i = 0; i < network.nodes.length; i++){
-                genes.push(network.nodes[i].attributes[attname_query].value.split("?id=")[1].toString());
-            }
-        }else{
-            for (var i = 0; i < network.nodes.length; i++){
-                genes.push(network.nodes[i].attributes[attname_query].value.toString());
-            }
-        }
-
-        var query = 'xref='+query_type+'&ids=' + JSON.stringify(genes).replace('\[', '').replace('\]', '').replace(/\"/g, '');
-
-        console.log(query);
-
-        $.ajax({
-            dataType: "json",
-            async: false,
-            type: "GET",
-            url: "http://www.innatedb.com/cerebralLocalizationWS.do",
-            data: query,
-            success: function(data){
-                for (var index = 0; index < genes.length; index++){
-
-                    network.nodes[index].attributes["Selected CC"] = {'type':"string", "value":data[genes[index]].toLowerCase()};
-
-                    var current_component = network.nodes[index].attributes["Selected CC"].value.replace(/ /g, "_");
-
-                    if (current_component == "cell_surface"){
-                        current_component = "extracellular";
-                    }else{
-                        if (!(current_component in cell) || current_component === "" || current_component === null) {
-                            current_component = "cytoplasm";
-                        }
-                    }
-
-                    network.nodes[index].group = network.nodes[index].attributes[d3.select("#color").node().value].value;
-                    network.nodes[index].component = current_component;
-                    network.nodes[index].component_id = get_component_id(current_component);
-
-                    current_component = network.nodes[index].attributes["Selected CC"].value.replace(/ /g, "_");
-
-                    if (current_component in selected_cc_count) {
-                        selected_cc_count[current_component] = selected_cc_count[current_component] + 1;
-                    } else {
-                        selected_cc_count[current_component] = 1;
-                    }
-                    used_organelles[current_component] = true;
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown)
-            {
-                alert("Error in innateDB web service: http://www.innatedb.com/cerebralLocalizationWS.do. It is not possible to query Selected CC from this server.");
-                console.log(errorThrown);
-            }
-        });
-
-        $('#color').append("<option value=\"Selected CC\">Selected CC</option>");
-        $('#change_label').append("<option value=\"Selected CC\">Selected CC</option>");
-    }
-
-
     function complete_network(){
-        console.log("Missing cc: " +missingCC);
 
         if (missingCC){
 
             // this code is commented because we decided to not allow the user to choose this options. The user may get wrong information and get lost in trying to get results from the analysis.
-            // // 1. use the first value from attribute chosed by user
-            // if(cc_picker == "First CC"){
-            //     create_selected_cc_using_first_cc();
-            // }else{
-            //     // 4. query from InnateDB
-            //     if(cc_picker == "InnateDB" && query_type != ""){
-            //         create_selected_cc_using_innatedb();
-            //     }else{
-            //         if (cc_picker == "All in Cytosol"){
-            //             create_selected_all_in("cytoplasm");
-            //         }else{
-            //             if (cc_picker == "All in Extracellular"){
-            //                 create_selected_all_in("extracellular");
-            //             }
-            //         }
-            //     }
-            // }
+            // (the options "First CC", "All in Cytosol" etc. were removed in the original version; see create_selected_cc_using_first_cc and create_selected_all_in)
             if(query_type != ""){
-                create_selected_cc_using_innatedb();
+                create_selected_cc_using_innatedb(function (ok) {
+                    if (ok) {
+                        finish_network_safely();
+                    } else {
+                        hideLoading();
+                        resetGlobalVariables();
+                        notify("The InnateDB localization service (" + INNATEDB_SERVICE_URL + ") is unavailable, so the cellular components of the nodes could not be retrieved and the network was not drawn. To load this network, add a \"Selected CC\" (or \"Localization\") attribute to every node of the XGMML file, or load a network that already has it. See the Help page for more information.", "danger");
+                    }
+                });
             }else{
-                alert("We could not query the Localization attribute from InnateDB since your network does not contain any of the attributes: UniProt, Ensembl, Entrez and InnateDB. Please consider reading the Help page for more information.");
+                hideLoading();
+                notify("We could not query the Localization attribute from InnateDB since your network does not contain any of the attributes: UniProt, Ensembl, Entrez and InnateDB. Please consider reading the Help page for more information.");
                 resetGlobalVariables();
-                return;
             }
-            console.log("Selected CC attribute created.")
+            return;
         }
+
+        finish_network_safely();
+    }
+
+
+    function finish_network_safely(){
+        try {
+            finish_network();
+        } catch (err) {
+            hideLoading();
+            notify("The network could not be drawn: " + err.message, "danger");
+        }
+    }
+
+
+    function finish_network(){
 
         var hash_names = {};
         for (name in network.nodes[0].attributes){
@@ -1611,9 +1700,11 @@ function parseXGMML(xml) {
                 var source_id = "n_"+$(this).attr("source").replace(/\./g, "_").replace(/\//g, "_");
                 var target_id = "n_"+$(this).attr("target").replace(/\./g, "_").replace(/\//g, "_");
 
-                if (source_id !== target_id) { //remove self-edge
-                    var sourceIdx = network.hash_ids[source_id];
-                    var targetIdx = network.hash_ids[target_id];
+                var sourceIdx = network.hash_ids[source_id];
+                var targetIdx = network.hash_ids[target_id];
+
+                // remove self-edges and edges whose nodes are not in the file (d3 would fail with an undefined node)
+                if (source_id !== target_id && sourceIdx !== undefined && targetIdx !== undefined) {
                     var edge = {
                         label: $(this).attr("label"),
                         id: "edge_" + source_id + "_" + target_id,
@@ -1648,6 +1739,7 @@ function parseXGMML(xml) {
         }
         network = null;
         resetForces();
+        hideLoading();
     }
 }
 
@@ -1803,6 +1895,11 @@ function updateNumbers(network) {
  */
 function loadDiagram(file, func, iis) {
     d3.xml("circular_cell_structure.svg", "image/svg+xml", function (xml) {
+        if (!xml) {
+            hideLoading();
+            notify("The cell diagram (circular_cell_structure.svg) could not be loaded. Please reload the page.", "danger");
+            return;
+        }
         var importedNode = document.importNode(xml.documentElement, true);
         $(document).ready(function () {
             resetGlobalVariables();
@@ -2083,8 +2180,9 @@ function createDonutChart() {
             total = total + d.value;
         });
         var tp = function (key, y, e, graph) {
+            var safeColor = /^(#[0-9a-fA-F]{3,8}|rgba?\([0-9.,\s%]+\)|[a-zA-Z]+)$/.test(String(e.color)) ? e.color : '';
             return '<h3 style="background-color: '
-                    + e.color + '">' + key + '</h3>'
+                    + safeColor + '">' + escapeHtml(key) + '</h3>'
                     + '<p>' + parseInt(y) + '</p>'
                     + '<p>' + (y * 100 / total).toFixed(2) + '%</p>';
         };
@@ -2097,11 +2195,11 @@ function createDonutChart() {
 
 function create_bundling(network) {
     if (is_force_running) {
-        alert("Can't compute edge bundling while Force algorithm is running. Please click on [Stop] button from Force section. After that, try computing the bundles again. After computing the bundling, you need to click on [Show]. To [Start] the force algorithm again you need to click on [Destroy] edge bundling.");
+        notify("Can't compute edge bundling while Force algorithm is running. Please click on [Stop] button from Force section. After that, try computing the bundles again. After computing the bundling, you need to click on [Show]. To [Start] the force algorithm again you need to click on [Destroy] edge bundling.");
         return null;
     }
 
-    alert("Edge bundling will be computed and may take some seconds or minutes. When it ends, a message will pop-up.");
+    notify("Edge bundling will be computed and may take some seconds or minutes. When it ends, a message will pop-up.", "info");
     var fbundling = null;
 
     d3.selectAll(".node").each(function (d) {
@@ -2135,7 +2233,7 @@ function create_bundling(network) {
             $("#show_edge_bundling").prop("disabled", false);
             $("#remove_bundling").prop("disabled", false);
             $("#restart_forces").prop("disabled", true);
-            alert("Edge bundling computed. Click [Show] on [Edge Bundling] menu to see the result.");
+            notify("Edge bundling computed. Click [Show] on [Edge Bundling] menu to see the result.", "success");
         }
     });
 }
@@ -2240,52 +2338,87 @@ function hide_edge_bundling() {
 }
 
 
-// IIS Integration
+// URL parameters (used by ?file=<address of an XGMML file>)
+
+/**
+ * Reads the parameters of the query string (the part after "?") into an object.
+ * Values are decoded with decodeURIComponent; a value that cannot be decoded is stored as null.
+ */
 function getParams() {
-
-    var params = {},
-            pairs = document.URL.split('?')
-            .pop()
-            .split('&');
-
-    for (var i = 0, p; i < pairs.length; i++) {
-        p = pairs[i].split('=');
-        params[ p[0] ] = p[1];
+    var params = {};
+    var query = window.location.search.replace(/^\?/, "");
+    if (query === "") {
+        return params;
+    }
+    var pairs = query.split("&");
+    for (var i = 0; i < pairs.length; i++) {
+        if (pairs[i] === "") {
+            continue;
+        }
+        var eq = pairs[i].indexOf("=");
+        var key = eq < 0 ? pairs[i] : pairs[i].slice(0, eq);
+        var value = eq < 0 ? "" : pairs[i].slice(eq + 1); // the value may contain "=" itself (a URL with its own query)
+        try {
+            params[decodeURIComponent(key)] = decodeURIComponent(value);
+        } catch (e) {
+            params[key] = null;
+        }
     }
     return params;
 }
 
-
-
-
-function integrate() {
-    params = getParams();
-
-    var file = "";
-    if ("file" in params) {
-        file = unescape(params["file"]);
-        $("#loading-container").css("display", "block");
-        $.ajax({
-            url: file,
-            type: 'GET',
-            cache: false,
-            dataType: 'text',
-            timeout: 100000,
-            error: function () {
-                alert('Error loading XGMML document');
-            },
-            success: function (xml) {
-                //$("div#debug").text(xml);
-                handleFileIIS(xml);
-            },
-            error: function (xml) {
-                alert("Error loading file.");
-            },
-            complete: function () {
-                $("#loading-container").css("display", "none");
-            }
-        });
+/**
+ * Resolves the value of ?file= to an absolute address and accepts it only if it is http or https.
+ * A relative value (for instance examples/x.xgmml) is resolved against the page, that is, it is same-origin.
+ * @returns {string|null} The absolute address or null.
+ */
+function validateFileUrl(value) {
+    if (typeof value !== "string" || value === "") {
+        return null;
     }
+    try {
+        var url = new URL(value, window.location.href);
+        return (url.protocol === "http:" || url.protocol === "https:") ? url.href : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+
+/**
+ * Handles the "file" parameter of the URL: downloads the XGMML network it points to (same origin, or a server that allows CORS) and loads it.
+ */
+function integrate() {
+    var params = getParams();
+
+    if (!("file" in params)) {
+        return;
+    }
+
+    var file = validateFileUrl(params["file"]);
+    if (file === null) {
+        notify("The \"file\" parameter of the address is not valid: only http and https addresses of an XGMML file are accepted.", "danger");
+        loadDiagram(null, null, false);
+        return;
+    }
+
+    $("#loading-container").css("display", "block");
+    $.ajax({
+        url: file,
+        type: 'GET',
+        cache: false,
+        dataType: 'text',
+        timeout: 100000,
+        success: function (xml) {
+            handleFileIIS(xml);
+        },
+        error: function (jqXHR, textStatus) {
+            hideLoading();
+            notify("Error loading the XGMML file " + file + " (" + (textStatus || "error") + "). The address may be wrong or unavailable, or the server may not allow requests from this page (CORS).", "danger");
+            loadDiagram(null, null, false);
+        }
+        // (on success the "loading" overlay is hidden by the parser when the network is drawn)
+    });
 }
 
 
@@ -2316,6 +2449,7 @@ function resetGlobalVariables() {
     globalFile = null;
     is_force_running = true;
     $('#color').empty();
+    $('#change_label').empty();
 
     if (force !== null) {
         force.stop();
@@ -2768,15 +2902,15 @@ function force_only_selected() {
             }
         }
 
-        if (globalnetwork.nodes > 1500 && globalnetwork.nodes < 2000){
-            if (newnodes > 100){
+        if (globalnetwork.nodes.length > 1500 && globalnetwork.nodes.length < 2000){
+            if (newnodes.length > 100){
                 $("#alphaCollide").slider('disable');
             }else{
                 $("#alphaCollide").slider('enable');
             }
         }else{
-            if (globalnetwork.nodes > 1000){
-                if (newnodes > 200){
+            if (globalnetwork.nodes.length > 1000){
+                if (newnodes.length > 200){
                     $("#alphaCollide").slider('disable');
                 }else{
                      $("#alphaCollide").slider('enable');
@@ -2870,7 +3004,7 @@ function resetForces(){
 function create_cerebral_layout(){
 
     if (globalnetwork == null || globalnetwork.links.length == 0){
-        alert("There is no network loaded. Please, load a network.");
+        notify("There is no network loaded. Please, load a network.");
         return;
     }
 
@@ -2957,7 +3091,8 @@ function create_cerebral_layout(){
     options.layers = final_layers;
 
     //console.log(options.layers);
-    // creating layout
+    // creating layout (the container is shown first: CSS keeps it out of the page while it is hidden)
+    d3.select('#cerebralDiv').style("visibility","visible");
     $('#cy2').empty();
     $('#cy2').cytoscape({
                 layout: options,
@@ -2972,7 +3107,6 @@ function create_cerebral_layout(){
                 }
     });
 
-    d3.select('#cerebralDiv').style("visibility","visible");
 }
 
 function changeLabels(){
