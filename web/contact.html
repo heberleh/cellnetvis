@@ -45,13 +45,13 @@ Those that have employed the tool CellNetVis should mention:
         <script src="jquery/jquery-2.1.0.min.js"></script>
         <!-- Bootstrap -->
         <!-- Latest compiled and minified CSS -->
-       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="bootstrap/bootstrap.min.css">
 
         <!-- Optional theme -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link rel="stylesheet" href="bootstrap/bootstrap-theme.min.css">
 
         <!-- Latest compiled and minified JavaScript -->
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="bootstrap/bootstrap.min.js"></script>
         <!-- <link type="text/css" rel="stylesheet" href="./bootstrap/font-awesome.min.css"/> -->
 
         <script src="bootstrap/bootstrap-slider.min.js"></script>
@@ -97,20 +97,21 @@ Those that have employed the tool CellNetVis should mention:
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More options <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li class="dropdown-header">Other features</li>
-                <li id="create_cerebral"><a href="#">Create <b>CerebralWeb</b> layout</a></li>
-                <!-- <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li> -->
-                <li role="separator" class="divider"></li>
-                <li class="dropdown-header">Network databases (.xgmml)</li>
-                <li><a href="http://bioinfo03.ibi.unicamp.br/lnbio/IIS2/"  target="_blank">IIS - Integrated Interactome System</a></li>
-                <li><a href="http://www.innatedb.com/" target="_blank">InnateDB</a></li>
+                                <li class="dropdown-header">Network databases (.xgmml)</li>
+                <li class="disabled"><a href="#" onclick="return false;" title="The original server is no longer online.">IIS - Integrated Interactome System (no longer available)</a></li>
+                <li><a href="https://www.innatedb.com/" target="_blank" rel="noopener">InnateDB</a></li>
               </ul>
             </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
+
+    <div id="legacy-banner" class="alert alert-info alert-dismissible legacy-banner" role="status">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <strong>CellNetVis 1 (2017).</strong> A new version is in development &mdash; see the project on GitHub (<a href="https://github.com/heberleh/cellnetvis" target="_blank" rel="noopener">https://github.com/heberleh/cellnetvis</a>).
+    </div>
+
         <div id="sidebar" class="col-md-3">
             <div id="sidebar_inner">
                 <div class="widget-wrap">
